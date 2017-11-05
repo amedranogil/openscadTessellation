@@ -1,8 +1,9 @@
 include <shapes.scad>
 
-module tessellarConnect(d,ch,possitive,negative=[],t=0,deltaAngle=0){
+module tessellarConnect(d,ch,possitive,negative=[],t=0,zt=0,deltaAngle=0){
     sides=len(possitive);
     D=360/sides;
+    zt = zt==0? t:zt;
     difference(){
         union(){
             children(0);
@@ -19,7 +20,7 @@ module tessellarConnect(d,ch,possitive,negative=[],t=0,deltaAngle=0){
                     || (len(negative)>0 && negative[a] == 1)){
                     rotate([0,0,a*D+deltaAngle]) 
                         translate([d/2,0,0]) 
-                          linear_extrude(height=ch+t) 
+                          linear_extrude(height=ch+zt) 
                             offset(delta=t) children(1);
                 }
         }
@@ -42,14 +43,15 @@ ConnectionGeometry="puzzle"; //[triangle,puzzle,rectangle,loop]
 ConnectionRatio=0.87;//(0,1]
 ConnectionDelta=0; // only for "double" ConnectionType
 ConnectionTolerance=0.4; // added clearence to negative part
+ConnectionVTolerance=0.7; // Vertical clearence for bigger negative section
 ConnectorSize=5;
 
 NSides=len(Positive);
 
 R=R2a(polySide2R(SideLength,NSides),NSides);
 
-tessellarConnect(R*2,Height*ConnectionRatio,Positive,Negative,t=ConnectionTolerance,deltaAngle= 180/(NSides)){
-    roundedPolygon(SideLength,Height,NSides,Roundness);
+tessellarConnect(R*2,Height*ConnectionRatio,Positive,Negative,t=ConnectionTolerance,zt=ConnectionVTolerance,deltaAngle= 180/(NSides)){
+    roundedPolygon(SideLength,Height,NSides,Roundness,$fn=24);
     
     if(ConnectionGeometry=="triangle"){
         triangleCon(ConnectorSize);
